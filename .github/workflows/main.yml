@@ -65,7 +65,9 @@ jobs:
         run: npm install -g snyk
 
       - name: Run Snyk for Java Security Scanning
-        run: snyk test
+        run: snyk test 
+        working-directory: duman_app  # Specify the working directory for Java
 
       - name: Run Snyk for Flutter Security Scanning
-        run: snyk test --file=duman_app/pubspec.yaml
+        run: snyk test --file=pubspec.yaml  # Adjust path as necessary
+        working-directory: duman_app  # Specify the working directory for Flutter
