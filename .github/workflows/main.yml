@@ -17,13 +17,14 @@ jobs:
         working-directory: duman_app/android
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Run Snyk
         uses: snyk/actions/gradle@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
+          file: build.gradle # Explicitly specifying the target file for Snyk
 
   build:
     name: Build
