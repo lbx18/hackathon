@@ -15,8 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Snyk
+        run: npm install -g snyk  # Install the Snyk CLI globally
+
       - name: Run Snyk with Debug
-        working-directory: duman_app/android  # Set the working directory for Snyk
+        working-directory: duman_app/android
         run: snyk test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
