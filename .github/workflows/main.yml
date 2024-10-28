@@ -31,17 +31,35 @@ jobs:
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk Package Vulnerabilities Test
+      # Scan Android (Gradle) dependencies
+      - name: Snyk Android Dependencies Test
         continue-on-error: true
         run: |
-          cd duman_app
-          snyk test --file=pubspec.yaml --package-manager=dart --severity-threshold=high
+          cd duman_app/android
+          snyk test --all-projects --severity-threshold=high
 
-      - name: Monitor Project in Snyk
+      # Monitor Android projects in Snyk
+      - name: Monitor Android Projects in Snyk
         continue-on-error: true
         run: |
-          cd duman_app
-          snyk monitor --file=pubspec.yaml --package-manager=dart
+          cd duman_app/android
+          snyk monitor --all-projects
+
+      # Generate and export Snyk report
+      - name: Generate Snyk Report
+        if: always()
+        run: |
+          cd duman_app/android
+          snyk test --all-projects --json > snyk-report.json || true
+
+      # Upload Snyk report as artifact
+      - name: Upload Snyk Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-security-report
+          path: duman_app/android/snyk-report.json
+          retention-days: 7
 
   build:
     name: Build and Test
