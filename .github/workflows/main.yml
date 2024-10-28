@@ -51,19 +51,18 @@ jobs:
           path: duman_app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
-snyk_scan:
-    name: Snyk Security Scan
+snyk:
+   # needs: build  # Ensure this job runs after the build job
     runs-on: ubuntu-latest
-    needs: run_tests
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Run Snyk for security scanning
-      - name: Snyk Security Scan
-        uses: snyk/actions/cli@v3
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - uses: actions/checkout@v3
+      - name: Change to Project Directory
+        run: cd projects/duman_app  # Make sure to navigate to your project directory
+      - name: Run Snyk for Security Scanning
         with:
-          args: monitor --all-projects
+          token: ${{ env.SNYK_TOKEN }}
+      - name: Snyk Monitor Dependencies
+        run: snyk monitor --all-projects
