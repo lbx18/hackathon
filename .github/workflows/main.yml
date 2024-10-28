@@ -27,16 +27,8 @@ jobs:
 
       - name: Change to Project Directory
         run: |
-          echo "Contents of the root directory:"
-          ls
-          if [ -d "duman_app" ]; then
-            cd duman_app
-            echo "Changed to duman_app directory. Contents:"
             ls
-          else
-            echo "Directory duman_app not found."
-            exit 1
-          fi
+            cd duman_app
 
       - name: Get dependencies
         run: flutter pub get
