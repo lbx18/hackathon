@@ -16,27 +16,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: duman_app
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/setup@master
 
       - name: Authenticate Snyk
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk Code Test
-        continue-on-error: true  # Optional: prevents pipeline failure on vulnerabilities
-        run: snyk code test --severity-threshold=high
-        working-directory: duman_app
+      - name: Snyk Package Vulnerabilities Test
+        continue-on-error: true
+        run: |
+          cd duman_app
+          snyk test --file=pubspec.yaml --package-manager=dart --severity-threshold=high
 
-      - name: Snyk Open Source Test
-        continue-on-error: true  # Optional: prevents pipeline failure on vulnerabilities
-        run: snyk test --severity-threshold=high
-        working-directory: duman_app
-        
-      - name: Upload Snyk results
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
-        if: always()
+      - name: Monitor Project in Snyk
+        continue-on-error: true
+        run: |
+          cd duman_app
+          snyk monitor --file=pubspec.yaml --package-manager=dart
 
   build:
     name: Build and Test
