@@ -30,10 +30,20 @@ jobs:
 
       - name: Get dependencies
         working-directory: duman_app
+        run: flutter pub get
+
+      # Setup Gradle
+      - name: Grant execute permission for gradlew
+        working-directory: duman_app/android
         run: |
-          flutter pub get
-          cd android
-          ./gradlew dependencies
+          if [ ! -f "./gradlew" ]; then
+            gradle wrapper
+          fi
+          chmod +x ./gradlew
+
+      - name: Run Gradle dependencies
+        working-directory: duman_app/android
+        run: ./gradlew dependencies
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle-jdk17@master
@@ -102,6 +112,15 @@ jobs:
       - name: Get dependencies
         working-directory: duman_app
         run: flutter pub get
+
+      # Setup Gradle for build job
+      - name: Grant execute permission for gradlew
+        working-directory: duman_app/android
+        run: |
+          if [ ! -f "./gradlew" ]; then
+            gradle wrapper
+          fi
+          chmod +x ./gradlew
 
       - name: Analyze code
         working-directory: duman_app
