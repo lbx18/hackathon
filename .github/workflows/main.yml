@@ -7,6 +7,19 @@ on:
   pull_request:
     branches:
       - main
+snyk:
+   # needs: build  # Ensure this job runs after the build job
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Snyk for Security Scanning
+        with:
+          token: ${{ env.SNYK_TOKEN }}
+      - name: Snyk Monitor Dependencies
+        run: snyk monitor --all-projects
 
 jobs:
   build:
@@ -50,4 +63,5 @@ jobs:
           name: apk
           path: duman_app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+
 
