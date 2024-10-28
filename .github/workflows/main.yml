@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-
+jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ on:
           path: duman_app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
-jobs:
+
   security:
     runs-on: ubuntu-latest
     env:
