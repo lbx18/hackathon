@@ -29,11 +29,11 @@ jobs:
           channel: stable
 
       - name: Get dependencies
+        working-directory: duman_app
         run: |
           flutter pub get
           cd android
           ./gradlew dependencies
-        working-directory: duman_app
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/gradle-jdk17@master
@@ -41,35 +41,31 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           DEBUG: '*snyk*'
         with:
-          command: monitor
           args: --gradle-sub-project=app --configuration-matching='^(api|implementation|compile).*$'
-          json: true
-        working-directory: duman_app/android
+          project-path: ./duman_app/android
 
       - name: Snyk Test with Debug
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           DEBUG: '*snyk*'
+        working-directory: duman_app/android
         run: |
-          cd duman_app/android
           snyk test \
             --gradle-sub-project=app \
             --configuration-matching='^(api|implementation|compile).*$' \
             --debug || true
 
-      # Generate and export Snyk report
       - name: Generate Snyk Report
         if: always()
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        working-directory: duman_app/android
         run: |
-          cd duman_app/android
           snyk test \
             --gradle-sub-project=app \
             --configuration-matching='^(api|implementation|compile).*$' \
             --json > snyk-report.json || true
 
-      # Upload Snyk report as artifact
       - name: Upload Snyk Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -104,24 +100,24 @@ jobs:
         run: flutter config --no-analytics
 
       - name: Get dependencies
-        run: flutter pub get
         working-directory: duman_app
+        run: flutter pub get
 
       - name: Analyze code
-        run: flutter analyze
         working-directory: duman_app
+        run: flutter analyze
 
       - name: Format check
-        run: dart format --set-exit-if-changed .
         working-directory: duman_app
+        run: dart format --set-exit-if-changed .
 
       - name: Run tests
-        run: flutter test
         working-directory: duman_app
+        run: flutter test
 
       - name: Build APK
-        run: flutter build apk --release
         working-directory: duman_app
+        run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
