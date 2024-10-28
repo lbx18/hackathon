@@ -17,7 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run Snyk for Security Scanning
-        uses: snyk/actions/setup@latest
         with:
           token: ${{ env.SNYK_TOKEN }}
       - name: Snyk Monitor Dependencies
