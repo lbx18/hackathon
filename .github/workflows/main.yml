@@ -51,7 +51,7 @@ jobs:
           path: duman_app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
- snyk_scan:
+snyk_scan:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
     needs: run_tests
