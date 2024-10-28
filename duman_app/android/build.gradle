@@ -16,3 +16,6 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+plugins {
+    id("io.snyk.gradle.plugin.snykplugin") version "0.7.0"
+}
