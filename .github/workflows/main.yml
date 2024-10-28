@@ -16,41 +16,58 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd android
+          ./gradlew dependencies
         working-directory: duman_app
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/setup@master
+        uses: snyk/actions/gradle-jdk17@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          DEBUG: '*snyk*'
+        with:
+          command: monitor
+          args: --gradle-sub-project=app --configuration-matching='^(api|implementation|compile).*$'
+          json: true
+        working-directory: duman_app/android
 
-      - name: Authenticate Snyk
-        run: snyk auth ${{ secrets.SNYK_TOKEN }}
-
-      # Scan Android (Gradle) dependencies
-      - name: Snyk Android Dependencies Test
-        continue-on-error: true
+      - name: Snyk Test with Debug
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          DEBUG: '*snyk*'
         run: |
           cd duman_app/android
-          snyk test --all-projects --severity-threshold=high
-
-      # Monitor Android projects in Snyk
-      - name: Monitor Android Projects in Snyk
-        continue-on-error: true
-        run: |
-          cd duman_app/android
-          snyk monitor --all-projects
+          snyk test \
+            --gradle-sub-project=app \
+            --configuration-matching='^(api|implementation|compile).*$' \
+            --debug || true
 
       # Generate and export Snyk report
       - name: Generate Snyk Report
         if: always()
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           cd duman_app/android
-          snyk test --all-projects --json > snyk-report.json || true
+          snyk test \
+            --gradle-sub-project=app \
+            --configuration-matching='^(api|implementation|compile).*$' \
+            --json > snyk-report.json || true
 
       # Upload Snyk report as artifact
       - name: Upload Snyk Report
