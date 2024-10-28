@@ -13,35 +13,29 @@ jobs:
     name: Build and Test
     runs-on: ubuntu-latest
 
+    container:
+      image: your-dockerhub-username/flutter-docker:latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Disable Analytics
-        run: flutter config --no-analytics
-
-      - name: Change to Project Directory
-        run: |
-            ls
-            cd duman_app
-
+      # Set up the project working directory for Flutter commands
       - name: Get dependencies
         run: flutter pub get
+        working-directory: duman_app
 
       - name: Run tests
         run: flutter test
+        working-directory: duman_app
 
       - name: Build APK
         run: flutter build apk
+        working-directory: duman_app
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: duman_app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
