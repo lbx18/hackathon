@@ -17,7 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Set up the project working directory for Flutter commands
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Disable Analytics
+        run: flutter config --no-analytics
+
       - name: Get dependencies
         run: flutter pub get
         working-directory: duman_app
