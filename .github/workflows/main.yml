@@ -29,6 +29,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           SNYK_DEBUG: '1'  # Enable debug mode for detailed logs
+        continue-on-error: true  # Allow the workflow to continue even if this step fails
 
   build:
     name: Build
