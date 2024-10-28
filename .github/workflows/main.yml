@@ -18,7 +18,7 @@ jobs:
       - name: Set up local.properties
         run: |
           echo "sdk.dir=/usr/local/lib/android/sdk" > duman_app/android/local.properties  # Set Android SDK path
-          echo "flutter.sdk=$HOME/opt/flutter" >> duman_app/android/local.properties  # Set Flutter SDK path
+          echo "flutter.sdk=$HOME/flutter" >> duman_app/android/local.properties  # Set Flutter SDK path
 
       - name: Install Snyk
         run: npm install -g snyk  # Install the Snyk CLI globally
@@ -44,7 +44,7 @@ jobs:
       - name: Set up local.properties
         run: |
           echo "sdk.dir=/usr/local/lib/android/sdk" > duman_app/android/local.properties  # Set Android SDK path
-          echo "flutter.sdk=$HOME/opt/flutter" >> duman_app/android/local.properties  # Set Flutter SDK path
+          echo "flutter.sdk=$HOME/flutter" >> duman_app/android/local.properties  # Set Flutter SDK path
 
       - name: Build APK
         working-directory: duman_app
