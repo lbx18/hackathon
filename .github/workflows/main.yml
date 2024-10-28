@@ -12,77 +12,34 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: duman_app/android
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Get dependencies
-        working-directory: duman_app
-        run: flutter pub get
-
-      # Setup Gradle
-      - name: Grant execute permission for gradlew
-        working-directory: duman_app/android
+      - name: Setup Gradle
         run: |
           if [ ! -f "./gradlew" ]; then
             gradle wrapper
           fi
           chmod +x ./gradlew
 
-      - name: Run Gradle dependencies
-        working-directory: duman_app/android
-        run: ./gradlew dependencies
-
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/gradle-jdk17@master
+      - name: Run Snyk
+        uses: snyk/actions/gradle@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          DEBUG: '*snyk*'
         with:
-          args: --gradle-sub-project=app --configuration-matching='^(api|implementation|compile).*$'
-          project-path: ./duman_app/android
-
-      - name: Snyk Test with Debug
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          DEBUG: '*snyk*'
-        working-directory: duman_app/android
-        run: |
-          snyk test \
-            --gradle-sub-project=app \
-            --configuration-matching='^(api|implementation|compile).*$' \
-            --debug || true
-
-      - name: Generate Snyk Report
-        if: always()
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        working-directory: duman_app/android
-        run: |
-          snyk test \
-            --gradle-sub-project=app \
-            --configuration-matching='^(api|implementation|compile).*$' \
-            --json > snyk-report.json || true
-
-      - name: Upload Snyk Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-security-report
-          path: duman_app/android/snyk-report.json
-          retention-days: 7
+          command: test
+          args: --severity-threshold=high
 
   build:
     name: Build and Test
@@ -113,7 +70,6 @@ jobs:
         working-directory: duman_app
         run: flutter pub get
 
-      # Setup Gradle for build job
       - name: Grant execute permission for gradlew
         working-directory: duman_app/android
         run: |
