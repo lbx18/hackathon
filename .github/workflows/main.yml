@@ -52,7 +52,6 @@ jobs:
           if-no-files-found: error
 
 security:
-    name: Snyk Security Scan
     runs-on: ubuntu-latest
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
