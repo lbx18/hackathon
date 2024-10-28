@@ -8,19 +8,6 @@ on:
     branches:
       - main
 
-jobs:
-  security:
-    runs-on: ubuntu-latest
-    env:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ env.SNYK_TOKEN }}
-      - name: Snyk Monitor Dependencies
-        run: snyk monitor --all-projects
-
   build:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -62,3 +49,15 @@ jobs:
           name: apk
           path: duman_app/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@main
+        with:
+          token: ${{ env.SNYK_TOKEN }}
+      - name: Snyk Monitor Dependencies
+        run: snyk monitor --all-projects
