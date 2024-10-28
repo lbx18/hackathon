@@ -15,22 +15,9 @@ jobs:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Use your SSH private key here
-
-      - name: Set up Git credentials
-        run: |
-          git config --global user.name "lbx18"  # Update with your name
-          git config --global user.email "jojolucky221@gmail.com"  # Update with your email
-          echo "${{ secrets.GITHUB_TOKEN }}" | git credential approve
-
-      - name: Run Snyk for Security Scanning
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           token: ${{ env.SNYK_TOKEN }}
-
       - name: Snyk Monitor Dependencies
         run: snyk monitor --all-projects
 
@@ -41,8 +28,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Use your SSH private key here
 
       # Set up Java 17 for Android Gradle
       - name: Set up JDK 17
