@@ -15,7 +15,7 @@ jobs:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           token: ${{ env.SNYK_TOKEN }}
       - name: Snyk Monitor Dependencies
