@@ -84,11 +84,10 @@ jobs:
 
       - name: Create Release (only on main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: ncipollo/release-action@v1
+        uses: softprops/action-gh-release@v1
         with:
-          artifacts: "duman_app/build/app/outputs/apk/debug/*.apk"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.version.outputs.VERSION }}
+          files: duman_app/build/app/outputs/apk/debug/*.apk
+          tag_name: ${{ steps.version.outputs.VERSION }}
           name: "Release ${{ steps.version.outputs.VERSION }}"
           body: |
             Release ${{ steps.version.outputs.VERSION }}
@@ -100,4 +99,6 @@ jobs:
             For detailed changes, please check the commit history.
           draft: false
           prerelease: false
-          generateReleaseNotes: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
