@@ -1,18 +1,24 @@
-name: Flutter CI/CD
+name: Flutter Multi-Branch CI
 
 on:
   pull_request:
     branches:
       - main
-      - master
+      - videos
+      - staging
+      - auth
+      - preferences
   push:
     branches:
       - main
-      - master
+      - videos
+      - staging
+      - auth
+      - preferences
 
 jobs:
-  build:
-    name: Build and Release
+  scan:
+    name: Build and Scan
     runs-on: macos-latest
     defaults:
       run:
@@ -39,25 +45,59 @@ jobs:
           flutter config --no-cli-animations
           flutter doctor -v
           
-      - name: Check directory structure
+      - name: Check branch info
         run: |
-          pwd
-          ls -la
+          echo "Current branch: ${{ github.ref }}"
+          echo "Event name: ${{ github.event_name }}"
           
       - name: Get dependencies
         run: |
           flutter clean
           flutter pub get
+          
+      - name: Analyze code
+        run: flutter analyze
         
       - name: Run tests
         run: flutter test
         
-      - name: Build APK
+      - name: Check code formatting
+        run: dart format --set-exit-if-changed .
+        
+      - name: Build APK (only on push)
+        if: github.event_name == 'push'
         run: flutter build apk --debug --split-per-abi
         
-      - name: Create Release
+      - name: Upload build artifacts
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+        with:
+          name: apk-build-${{ github.ref_name }}
+          path: duman_app/build/app/outputs/apk/debug/*.apk
+          retention-days: 7
+
+      - name: Generate Release Version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: version
+        run: |
+          echo "VERSION=$(date +'v%Y.%m.%d.%H%M')" >> $GITHUB_OUTPUT
+
+      - name: Create Release (only on main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: ncipollo/release-action@v1
         with:
           artifacts: "duman_app/build/app/outputs/apk/debug/*.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
-          releaseNotes: file://release_notes.md
+          tag: ${{ steps.version.outputs.VERSION }}
+          name: "Release ${{ steps.version.outputs.VERSION }}"
+          body: |
+            Release ${{ steps.version.outputs.VERSION }}
+            
+            Changes in this Release:
+            - Automated release from main branch
+            - Built with Flutter 3.24.4
+            
+            For detailed changes, please check the commit history.
+          draft: false
+          prerelease: false
+          generateReleaseNotes: true
