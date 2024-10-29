@@ -14,6 +14,9 @@ jobs:
   build:
     name: Build and Release
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./duman_app
     
     steps:
       - name: Checkout code
@@ -31,8 +34,20 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
           
+      - name: Configure Flutter
+        run: |
+          flutter config --no-cli-animations
+          flutter doctor -v
+          
+      - name: Check directory structure
+        run: |
+          pwd
+          ls -la
+          
       - name: Get dependencies
-        run: flutter pub get
+        run: |
+          flutter clean
+          flutter pub get
         
       - name: Run tests
         run: flutter test
@@ -43,6 +58,6 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/apk/debug/*.apk"
+          artifacts: "duman_app/build/app/outputs/apk/debug/*.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
           releaseNotes: file://release_notes.md
