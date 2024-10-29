@@ -23,7 +23,6 @@ jobs:
       - run: flutter pub get
       - run: flutter test
       - run: flutter build apk --debug --split-per-abi
-        name: Push releases 
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/apk/debug"
