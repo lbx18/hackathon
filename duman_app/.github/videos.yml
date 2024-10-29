@@ -1,0 +1,38 @@
+name: Flutter CI with Snyk
+
+on:
+  push:
+    branches: [videos, main]
+  pull_request:
+    branches: [videos, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.0'
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Run tests
+        run: flutter test
+      - name: Build APK
+        run: flutter build apk --release
+
+  snyk:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Snyk for Security Scanning
+        with:
+          token: ${{ env.SNYK_TOKEN }}
+      - name: Snyk Monitor Dependencies
+        run: snyk monitor --all-projects
